@@ -9,5 +9,10 @@ fn test(func: fn(&str) -> AnswerType, answer: AnswerType, path: &str) {
 
 #[test]
 fn test1() {
-    test(super::part1, todo!(), "samples/sample1.txt");
+    test(super::part1, 3, "samples/sample1.txt");
+}
+
+#[test]
+fn test2() {
+    test(super::part2, 6, "samples/sample1.txt");
 }

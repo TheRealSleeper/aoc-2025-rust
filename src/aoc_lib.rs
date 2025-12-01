@@ -6,7 +6,6 @@ pub struct Args {
     pub part2: bool,
     pub verbose: bool,
     pub path: Option<String>,
-    pub sample: bool,
 }
 
 const HELP: &str = "TODO: Add help text";
@@ -18,7 +17,6 @@ impl Args {
             part2: false,
             verbose: false,
             path: None,
-            sample: false,
         };
 
         let mut env_args = args().skip(1);
@@ -34,7 +32,6 @@ impl Args {
                             my_args.path =
                                 Some(env_args.next().expect("Input argument missing").to_string())
                         }
-                        "sample" => my_args.sample = true,
                         "help" => println!("{HELP}"),
                         _ => {
                             println!("Unrecognized option {a}");
@@ -52,7 +49,6 @@ impl Args {
                                     env_args.next().expect("Input argument missing").to_string(),
                                 )
                             }
-                            's' => my_args.sample = true,
                             'h' => println!("{HELP}"),
                             _ => {
                                 println!("Unrecognized option {a}");
