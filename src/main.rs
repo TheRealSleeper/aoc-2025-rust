@@ -1,5 +1,7 @@
 use std::fs::read_to_string;
 
+use itertools::Itertools;
+
 #[allow(dead_code)]
 mod aoc_lib;
 
@@ -34,23 +36,49 @@ fn part1(_input: &str) -> AnswerType {
     _input
         .split(',')
         .flat_map(|r| {
-            let (lower, upper) = r.split_once('-').expect("Range missing '-'");
-            (lower.trim().parse::<AnswerType>().unwrap_or_else(|_| {
-                eprintln!("Error: '{lower}' is not a valid number");
+            let (lower_str, upper_str) = r.split_once('-').expect("Range missing '-'");
+            let lower = lower_str.trim().parse::<AnswerType>().unwrap_or_else(|_| {
+                eprintln!("Error: '{lower_str}' is not a valid number");
                 panic!()
-            })..=upper.trim().parse::<AnswerType>().unwrap_or_else(|_| {
-                eprintln!("Error: '{upper}' is not a valid number");
+            });
+            let upper = upper_str.trim().parse::<AnswerType>().unwrap_or_else(|_| {
+                eprintln!("Error: '{upper_str}' is not a valid number");
                 panic!()
-            }))
-                .filter(|v| {
-                    let s = v.to_string();
-                    let (left, right) = s.split_at(s.len() / 2);
-                    left == right
-                })
+            });
+
+            (lower..=upper).filter(|v| {
+                let s = v.to_string();
+                let (left, right) = s.split_at(s.len() / 2);
+                left == right
+            })
         })
         .sum()
 }
 
 fn part2(_input: &str) -> AnswerType {
-    todo!()
+    _input
+        .split(',')
+        .flat_map(|r| {
+            let (lower_str, upper_str) = r.split_once('-').expect("Range missing '-'");
+            let lower = lower_str.trim().parse::<AnswerType>().unwrap_or_else(|_| {
+                eprintln!("Error: '{lower_str}' is not a valid number");
+                panic!()
+            });
+            let upper = upper_str.trim().parse::<AnswerType>().unwrap_or_else(|_| {
+                eprintln!("Error: '{upper_str}' is not a valid number");
+                panic!()
+            });
+
+            (lower..=upper).filter(|v| {
+                let mut invalid = false; 
+                let c = v.to_string().chars().collect_vec();
+                for n in 1..=c.len() / 2 {
+                    if c.chunks(n).dedup().count() == 1 {
+                        invalid = true; 
+                    }
+                }
+                invalid
+            })
+        })
+        .sum()
 }
