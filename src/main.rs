@@ -44,9 +44,12 @@ fn wrapping_add(n1: i32, n2: i32, upper: i32, lower: i32) -> (i32, i32) {
         raw_sum
     };
 
-    wraps = wraps.abs();
     if sum < lower {
-        wraps += 1;
+        if wraps > 1 {
+            wraps += 1;
+        } else {
+            wraps -= 1;
+        }
         sum += range;
     }
 
@@ -91,15 +94,22 @@ fn part2(_input: &str) -> AnswerType {
 
     for movement in turns {
         let (new_position, wraps) = wrapping_add(position, movement, 99, 0);
-        if new_position == 0 && wraps == 0 {
+        if new_position == 0 && wraps <= 0 {
             count += 1;
+        } 
+        if position == 0 && wraps < 0 {
+            count -= 1; 
         }
-        if position == 0 && wraps > 0 {
-            count -= 1;
-        }
-        count += wraps;
+        count += wraps.abs();
+
+        #[cfg(test)]
+        println!("From {position} to {new_position}, {wraps} wraps, count of {count}");
+
         position = new_position;
     }
+
+    #[cfg(test)]
+    print!("\n");
 
     count as AnswerType
 }
