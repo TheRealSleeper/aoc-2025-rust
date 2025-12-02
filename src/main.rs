@@ -31,7 +31,24 @@ fn main() {
 }
 
 fn part1(_input: &str) -> AnswerType {
-    todo!()
+    _input
+        .split(',')
+        .flat_map(|r| {
+            let (lower, upper) = r.split_once('-').expect("Range missing '-'");
+            (lower.trim().parse::<AnswerType>().unwrap_or_else(|_| {
+                eprintln!("Error: '{lower}' is not a valid number");
+                panic!()
+            })..=upper.trim().parse::<AnswerType>().unwrap_or_else(|_| {
+                eprintln!("Error: '{upper}' is not a valid number");
+                panic!()
+            }))
+                .filter(|v| {
+                    let s = v.to_string();
+                    let (left, right) = s.split_at(s.len() / 2);
+                    left == right
+                })
+        })
+        .sum()
 }
 
 fn part2(_input: &str) -> AnswerType {
