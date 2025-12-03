@@ -35,9 +35,9 @@ fn main() {
     }
 }
 
-fn part1(_input: &str) -> AnswerType {
+fn joltage(input: &str, battery_count: usize) -> AnswerType {
     use std::cmp::Ordering::*;
-    _input
+    input
         .lines()
         .map(|l| {
             let batteries = l
@@ -47,7 +47,7 @@ fn part1(_input: &str) -> AnswerType {
                 .collect_vec();
             let mut total = 0;
             let mut max_pos = 0;
-            for i in (0..2).rev() {
+            for i in (0..battery_count).rev() {
                 let (rel_max_pos, max) = batteries[max_pos..batteries.len() - i]
                     .iter()
                     .enumerate()
@@ -66,33 +66,10 @@ fn part1(_input: &str) -> AnswerType {
         .sum()
 }
 
-fn part2(_input: &str) -> AnswerType {
-    use std::cmp::Ordering::*;
-    _input
-        .lines()
-        .map(|l| {
-            let batteries = l
-                .trim()
-                .chars()
-                .map(|c| c.to_digit(10).unwrap() as u64)
-                .collect_vec();
-            let mut total = 0;
-            let mut max_pos = 0;
-            for i in (0..12).rev() {
-                let (rel_max_pos, max) = batteries[max_pos..batteries.len() - i]
-                    .iter()
-                    .enumerate()
-                    .max_by(|a, b| match a.1.cmp(b.1) {
-                        Less | Equal => Less,
-                        Greater => Greater,
-                    })
-                    .unwrap();
-                total *= 10;
-                total += max;
-                max_pos += rel_max_pos + 1;
-            }
+fn part1(_input: &str) -> AnswerType {
+    joltage(_input, 2)
+}
 
-            total
-        })
-        .sum()
+fn part2(_input: &str) -> AnswerType {
+    joltage(_input, 12)
 }
