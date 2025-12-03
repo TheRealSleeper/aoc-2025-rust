@@ -1,6 +1,6 @@
-use std::fs::read_to_string;
-
 use itertools::Itertools;
+use rayon::prelude::*;
+use std::fs::read_to_string;
 
 #[allow(dead_code)]
 mod aoc_lib;
@@ -18,23 +18,27 @@ fn main() {
         .map(|p| read_to_string(&p).expect("input: Could not open file"));
 
     if args.part1 {
+        let now = std::time::Instant::now();
         println!(
-            "{}",
-            part1(content.as_deref().expect("No input file was opened"))
-        )
+            "Part 1: {}, found in {}ms",
+            part1(content.as_deref().expect("No input file was opened")),
+            now.elapsed().as_micros() as f32 / 1000.0
+        );
     }
 
     if args.part2 {
+        let now = std::time::Instant::now();
         println!(
-            "{}",
-            part2(content.as_deref().expect("No input file was opened"))
-        )
+            "Part 2: {}, found in {}ms",
+            part2(content.as_deref().expect("No input file was opened")),
+            now.elapsed().as_micros() as f32 / 1000.0
+        );
     }
 }
 
 fn part1(_input: &str) -> AnswerType {
     _input
-        .split(',')
+        .par_split(',')
         .flat_map(|r| {
             let (lower_str, upper_str) = r.split_once('-').expect("Range missing '-'");
             let lower = lower_str.trim().parse::<AnswerType>().unwrap_or_else(|_| {
@@ -46,7 +50,7 @@ fn part1(_input: &str) -> AnswerType {
                 panic!()
             });
 
-            (lower..=upper).filter(|v| {
+            (lower..=upper).into_par_iter().filter(|v| {
                 let s = v.to_string();
                 let (left, right) = s.split_at(s.len() / 2);
                 left == right
@@ -57,7 +61,7 @@ fn part1(_input: &str) -> AnswerType {
 
 fn part2(_input: &str) -> AnswerType {
     _input
-        .split(',')
+        .par_split(',')
         .flat_map(|r| {
             let (lower_str, upper_str) = r.split_once('-').expect("Range missing '-'");
             let lower = lower_str.trim().parse::<AnswerType>().unwrap_or_else(|_| {
@@ -69,12 +73,12 @@ fn part2(_input: &str) -> AnswerType {
                 panic!()
             });
 
-            (lower..=upper).filter(|v| {
-                let mut invalid = false; 
+            (lower..=upper).into_par_iter().filter(|v| {
+                let mut invalid = false;
                 let c = v.to_string().chars().collect_vec();
                 for n in 1..=c.len() / 2 {
                     if c.chunks(n).dedup().count() == 1 {
-                        invalid = true; 
+                        invalid = true;
                     }
                 }
                 invalid
