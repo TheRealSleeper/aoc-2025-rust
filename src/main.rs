@@ -16,17 +16,21 @@ fn main() {
         .map(|p| read_to_string(&p).expect("input: Could not open file"));
 
     if args.part1 {
+        let now = std::time::Instant::now();
         println!(
-            "{}",
-            part1(content.as_deref().expect("No input file was opened"))
-        )
+            "Part 1: {}, found in {}ms",
+            part1(content.as_deref().expect("No input file was opened")),
+            now.elapsed().as_micros() as f32 / 1000.0
+        );
     }
 
     if args.part2 {
+        let now = std::time::Instant::now();
         println!(
-            "{}",
-            part2(content.as_deref().expect("No input file was opened"))
-        )
+            "Part 2: {}, found in {}ms",
+            part2(content.as_deref().expect("No input file was opened")),
+            now.elapsed().as_micros() as f32 / 1000.0
+        );
     }
 }
 
