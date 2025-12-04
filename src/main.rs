@@ -35,7 +35,7 @@ fn main() {
     }
 }
 
-fn count_adjacent_rols(grid: &[Vec<u8>], row: usize, col: usize) -> AnswerType {
+fn count_adjacent_rolls(grid: &[Vec<u8>], row: usize, col: usize) -> AnswerType {
     let row_min = row.saturating_sub(1);
     let row_max = (row + 1).min(grid.len() - 1);
     let col_min = col.saturating_sub(1);
@@ -61,7 +61,7 @@ fn part1(_input: &str) -> AnswerType {
 
     for row in 0..grid.len() {
         for col in 0..grid[0].len() {
-            if grid[row][col] == b'@' && count_adjacent_rols(&grid, row, col) < 4 {
+            if grid[row][col] == b'@' && count_adjacent_rolls(&grid, row, col) < 4 {
                 count += 1;
             }
         }
@@ -79,7 +79,7 @@ fn part2(_input: &str) -> AnswerType {
         for row in 0..grid.len() {
             for col in 0..grid[0].len() {
                 if grid[row][col] == b'@'
-                    && count_adjacent_rols(&grid, row, col) < 4 {
+                    && count_adjacent_rolls(&grid, row, col) < 4 {
                         count += 1;
                         grid[row][col] = b'.';
                         removed = true;
