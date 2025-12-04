@@ -51,7 +51,7 @@ fn count_adjacent_rols(grid: &[Vec<u8>], row: usize, col: usize) -> AnswerType {
 fn parse(input: &str) -> Vec<Vec<u8>> {
     input
         .lines()
-        .map(|l| l.chars().map(|c| c as u8).collect_vec())
+        .map(|l| l.as_bytes().to_owned())
         .collect_vec()
 }
 
