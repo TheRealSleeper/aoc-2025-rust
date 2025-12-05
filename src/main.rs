@@ -64,7 +64,6 @@ fn part1(_input: &str) -> AnswerType {
 }
 
 fn part2(_input: &str) -> AnswerType {
-    std::thread::sleep(std::time::Duration::from_millis(10));
     let (fresh_str, _) = _input
         .trim()
         .split_once(if cfg!(windows) { "\r\n\r\n" } else { "\n\n" })
@@ -72,7 +71,7 @@ fn part2(_input: &str) -> AnswerType {
     let mut ranges = fresh_str
         .lines()
         .map(|l| {
-            let (min, max) = l.split_once('-').unwrap(); 
+            let (min, max) = l.split_once('-').unwrap();
             let min = min.parse::<AnswerType>().unwrap();
             let max = max.parse::<AnswerType>().unwrap();
             min..=max
@@ -84,27 +83,28 @@ fn part2(_input: &str) -> AnswerType {
         merged = false;
         let mut aux: Vec<std::ops::RangeInclusive<AnswerType>> = Vec::with_capacity(ranges.len());
         'outer: for range in ranges.iter() {
-            // println!("{line}");
-            let mut min = *range.start();
-            let mut max = *range.end();
-            // println!("{min}..={max}");
+            let min = *range.start();
+            let max = *range.end();
             for aux_range in aux.iter_mut() {
-                if *aux_range.start() < min && max < *aux_range.end() {
+                if *aux_range.start() <= min && max <= *aux_range.end() {
                     merged = true;
                     continue 'outer;
                 }
-                if *aux_range.start() > min && max > *aux_range.end() {
+                if *aux_range.start() >= min && max >= *aux_range.end() {
                     *aux_range = min..=max;
                     merged = true;
                     continue 'outer;
                 }
-                if *aux_range.end() > min && max > *aux_range.end() {
-                    min = *aux_range.end() + 1;
+                if *aux_range.end() >= min && max >= *aux_range.end() {
+                    *aux_range = *aux_range.start()..=max;
                     merged = true;
+                    continue 'outer;
                 }
-                if *aux_range.start() < max && min < *aux_range.start() && *aux_range.start() > 0 {
-                    max = *aux_range.start() - 1;
+                if *aux_range.start() <= max && min <= *aux_range.start() && *aux_range.start() > 0
+                {
+                    *aux_range = min..=*aux_range.end();
                     merged = true;
+                    continue 'outer;
                 }
             }
 
@@ -113,14 +113,5 @@ fn part2(_input: &str) -> AnswerType {
         ranges = aux;
     }
 
-    for range in ranges.iter() {
-        dbg!(range);
-    }
-    
-    println!("");
-
-    let sum = ranges.into_iter().map(|r| r.count()).sum();
-    assert_ne!(sum, 377478456633648);
-    assert_ne!(sum, 385574785829225);
-    sum
+    ranges.into_iter().map(|r| r.count()).sum()
 }
