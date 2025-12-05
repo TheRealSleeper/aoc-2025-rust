@@ -100,14 +100,13 @@ fn part2(_input: &str) -> AnswerType {
                     merged = true;
                     continue 'outer;
                 }
-                if *aux_range.start() <= max && min <= *aux_range.start() && *aux_range.start() > 0
+                if *aux_range.start() <= max && min <= *aux_range.start()
                 {
                     *aux_range = min..=*aux_range.end();
                     merged = true;
                     continue 'outer;
                 }
             }
-
             aux.push(min..=max);
         }
         ranges = aux;
