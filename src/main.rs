@@ -41,50 +41,14 @@ fn part1(_input: &str) -> AnswerType {
         .split_once(if cfg!(windows) { "\r\n\r\n" } else { "\n\n" })
         .unwrap();
 
-    let mut ranges = fresh_str
+    let ranges = fresh_str
         .lines()
         .map(|l| {
             let (min, max) = l.split_once('-').unwrap();
-            let min = min.parse::<AnswerType>().unwrap();
-            let max = max.parse::<AnswerType>().unwrap();
-            min..=max
+            min.parse::<AnswerType>().unwrap()..=max.parse::<AnswerType>().unwrap()
         })
         .collect_vec();
 
-    let mut merged = true;
-    while merged {
-        merged = false;
-        let mut aux: Vec<std::ops::RangeInclusive<AnswerType>> = Vec::with_capacity(ranges.len());
-        'outer: for range in ranges.iter() {
-            // println!("{line}");
-            let mut min = *range.start();
-            let mut max = *range.end();
-            // println!("{min}..={max}");
-            for aux_range in aux.iter_mut() {
-                if *aux_range.start() < min && max < *aux_range.end() {
-                    merged = true;
-                    continue 'outer;
-                }
-                if *aux_range.start() > min && max > *aux_range.end() {
-                    *aux_range = min..=max;
-                    merged = true;
-                    continue 'outer;
-                }
-                if *aux_range.end() > min && max > *aux_range.end() {
-                    min = *aux_range.end() + 1;
-                    merged = true;
-                }
-                if *aux_range.start() < max && min < *aux_range.start() && *aux_range.start() > 0 {
-                    max = *aux_range.start() - 1;
-                    merged = true;
-                }
-            }
-
-            aux.push(min..=max);
-        }
-        ranges = aux;
-    }
-    
     all_str
         .lines()
         .map(|l| l.parse::<AnswerType>().unwrap())
@@ -108,7 +72,7 @@ fn part2(_input: &str) -> AnswerType {
     let mut ranges = fresh_str
         .lines()
         .map(|l| {
-            let (min, max) = l.split_once('-').unwrap();
+            let (min, max) = l.split_once('-').unwrap(); 
             let min = min.parse::<AnswerType>().unwrap();
             let max = max.parse::<AnswerType>().unwrap();
             min..=max
@@ -152,7 +116,7 @@ fn part2(_input: &str) -> AnswerType {
     for range in ranges.iter() {
         dbg!(range);
     }
-
+    
     println!("");
 
     let sum = ranges.into_iter().map(|r| r.count()).sum();
