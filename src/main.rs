@@ -1,4 +1,6 @@
-use std::fs::read_to_string;
+use itertools::Itertools;
+use merged_range::MergedRange;
+use std::{fs::read_to_string, ops::Bound};
 
 #[allow(dead_code)]
 mod aoc_lib;
@@ -35,7 +37,27 @@ fn main() {
 }
 
 fn part1(_input: &str) -> AnswerType {
-    todo!()
+    let (fresh_str, all_str) = _input.trim().split_once("\n\n").unwrap();
+    let fresh = fresh_str
+        .lines()
+        .map(|l| {
+            let (min, max) = l.split_once('-').unwrap();
+            min.parse::<AnswerType>().unwrap()..=max.parse::<AnswerType>().unwrap()
+        })
+        .collect_vec();
+
+    all_str
+        .lines()
+        .map(|l| l.parse::<AnswerType>().unwrap())
+        .filter(|n| {
+            for range in &fresh {
+                if range.contains(n) {
+                    return true;
+                }
+            }
+            false
+        })
+        .count()
 }
 
 fn part2(_input: &str) -> AnswerType {
