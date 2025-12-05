@@ -15,4 +15,6 @@ fn test1() {
 #[test]
 fn test2() {
     test(part2, 14, "samples/sample1.txt");
+    test(part2, 10, "samples/p2_edge_case_1");
+    test(part2, 10, "samples/p2_edge_case_2");
 }

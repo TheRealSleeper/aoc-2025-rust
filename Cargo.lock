@@ -7,17 +7,7 @@ name = "aoc-2025-rust"
 version = "0.1.0"
 dependencies = [
  "itertools",
- "merged_range",
  "rayon",
-]
-
-[[package]]
-name = "clippy-utilities"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63940bc99b494c2431ab307e373daf0181a2ad84d738a24beca52f9e724f8760"
-dependencies = [
- "numeric_cast",
 ]
 
 [[package]]
@@ -59,21 +49,6 @@ checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
 dependencies = [
  "either",
 ]
-
-[[package]]
-name = "merged_range"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c013377d78bca1015c5c9d56a4f65f0ab3257cbd8b3af0b98e44af889010dbb"
-dependencies = [
- "clippy-utilities",
-]
-
-[[package]]
-name = "numeric_cast"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89c16f12ae83bcd4510aff7778f043464991f8b5a10a27d7083f75361de32ac3"
 
 [[package]]
 name = "rayon"
