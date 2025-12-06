@@ -1,5 +1,4 @@
 use std::fs::read_to_string;
-
 use itertools::Itertools;
 
 #[allow(dead_code)]
@@ -61,9 +60,11 @@ fn transpose<T: Copy>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
         .collect()
 }
 
-fn parse(input: &str) -> Vec<Vec<HomeworkEntry>> {
-    transpose(
-        input
+fn part1(_input: &str) -> AnswerType {
+    use HomeworkEntry::*;
+    
+    let mut problems = transpose(
+        _input
             .lines()
             .map(|l| {
                 l.split_whitespace()
@@ -71,22 +72,19 @@ fn parse(input: &str) -> Vec<Vec<HomeworkEntry>> {
                     .collect_vec()
             })
             .collect_vec(),
-    )
-}
+    );
 
-fn part1(_input: &str) -> AnswerType {
-    use HomeworkEntry::*;
-    parse(_input)
+    problems
         .iter_mut()
         .map(|p| {
             let operation = p.pop().unwrap();
             match operation {
                 Operation(b'+') => p
-                    .into_iter()
+                    .iter_mut()
                     .map(|&mut n| if let Number(n) = n { n } else { unreachable!() })
                     .sum::<AnswerType>(),
                 Operation(b'*') => p
-                    .into_iter()
+                    .iter_mut()
                     .map(|&mut n| if let Number(n) = n { n } else { unreachable!() })
                     .product::<AnswerType>(),
                 _ => unreachable!(),
@@ -96,5 +94,60 @@ fn part1(_input: &str) -> AnswerType {
 }
 
 fn part2(_input: &str) -> AnswerType {
-    todo!()
+    let grid = _input
+        .lines()
+        .map(|l| {
+            let mut bytes = l.as_bytes().to_owned();
+            bytes.reverse();
+            bytes
+        })
+        .collect_vec();
+
+    let mut sum = 0;
+    let mut numbers = vec![];
+    let mut operation = None;
+    for i in 0..grid[0].len() {
+        let mut empty_column = true;
+        let mut n = 0;
+        
+        for ii in 0..grid.len() {
+            let byte = grid[ii][i];
+            match byte {
+                b'0'..=b'9' => {
+                    n *= 10;
+                    n += (byte - b'0') as AnswerType;
+                    empty_column = false;
+                }
+                b'+' => {
+                    operation = Some(b'+');
+                    empty_column = false;
+                }
+                b'*' => {
+                    operation = Some(b'*');
+                    empty_column = false;
+                }
+                _ => {}
+            }
+        }
+        
+        if empty_column {
+            sum += match operation {
+                Some(b'+') => numbers.iter().sum::<AnswerType>(),
+                Some(b'*') => numbers.iter().product::<AnswerType>(),
+                _ => unreachable!(),
+            };
+            operation = None;
+            numbers.clear();
+        } else {
+            numbers.push(n);
+        }
+    }
+
+    sum += match operation {
+        Some(b'+') => numbers.iter().sum::<AnswerType>(),
+        Some(b'*') => numbers.iter().product::<AnswerType>(),
+        _ => unreachable!(),
+    };
+    
+    sum
 }
