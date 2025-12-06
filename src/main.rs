@@ -143,7 +143,7 @@ fn part2(_input: &str) -> AnswerType {
         }
     }
 
-    if !numbers.is_empty() && !operation.is_none() {
+    if !numbers.is_empty() && operation.is_some() {
         sum += match operation {
             Some(b'+') => numbers.into_iter().sum::<AnswerType>(),
             Some(b'*') => numbers.into_iter().product::<AnswerType>(),
