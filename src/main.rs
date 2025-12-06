@@ -110,8 +110,8 @@ fn part2(_input: &str) -> AnswerType {
         let mut empty_column = true;
         let mut n = 0;
 
-        for ii in 0..grid.len() {
-            let byte = grid[ii][i];
+        for row in &grid {
+            let byte = row[i];
             match byte {
                 b'0'..=b'9' => {
                     n *= 10;
