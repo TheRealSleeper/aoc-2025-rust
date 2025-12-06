@@ -1,5 +1,5 @@
-use std::fs::read_to_string;
 use itertools::Itertools;
+use std::fs::read_to_string;
 
 #[allow(dead_code)]
 mod aoc_lib;
@@ -62,7 +62,7 @@ fn transpose<T: Copy>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
 
 fn part1(_input: &str) -> AnswerType {
     use HomeworkEntry::*;
-    
+
     let mut problems = transpose(
         _input
             .lines()
@@ -109,7 +109,7 @@ fn part2(_input: &str) -> AnswerType {
     for i in 0..grid[0].len() {
         let mut empty_column = true;
         let mut n = 0;
-        
+
         for ii in 0..grid.len() {
             let byte = grid[ii][i];
             match byte {
@@ -129,7 +129,7 @@ fn part2(_input: &str) -> AnswerType {
                 _ => {}
             }
         }
-        
+
         if empty_column {
             sum += match operation {
                 Some(b'+') => numbers.iter().sum::<AnswerType>(),
@@ -143,11 +143,13 @@ fn part2(_input: &str) -> AnswerType {
         }
     }
 
-    sum += match operation {
-        Some(b'+') => numbers.iter().sum::<AnswerType>(),
-        Some(b'*') => numbers.iter().product::<AnswerType>(),
-        _ => unreachable!(),
-    };
-    
+    if !numbers.is_empty() && !operation.is_none() {
+        sum += match operation {
+            Some(b'+') => numbers.into_iter().sum::<AnswerType>(),
+            Some(b'*') => numbers.into_iter().product::<AnswerType>(),
+            _ => unreachable!(),
+        };
+    }
+
     sum
 }
