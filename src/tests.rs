@@ -9,7 +9,7 @@ fn test(func: fn(&str) -> AnswerType, answer: AnswerType, path: &str) {
 
 #[test]
 fn test1() {
-    test(part1, todo!(), "samples/sample1.txt");
+    test(part1, 4277556, "samples/sample1.txt");
 }
 
 #[test]

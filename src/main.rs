@@ -1,5 +1,7 @@
 use std::fs::read_to_string;
 
+use itertools::Itertools;
+
 #[allow(dead_code)]
 mod aoc_lib;
 
@@ -34,8 +36,63 @@ fn main() {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+enum HomeworkEntry {
+    Number(AnswerType),
+    Operation(u8),
+}
+
+impl HomeworkEntry {
+    fn parse(inp: &str) -> Result<Self, ()> {
+        use HomeworkEntry::*;
+        match inp {
+            "+" | "*" => Ok(Operation(inp.as_bytes()[0])),
+            &_ => inp
+                .parse::<AnswerType>()
+                .map_or_else(|_| Err(()), |n| Ok(Number(n))),
+        }
+    }
+}
+
+fn transpose<T: Copy>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
+    let len = v[0].len();
+    (0..len)
+        .map(|i| v.iter().map(|row| row[i]).collect())
+        .collect()
+}
+
+fn parse(input: &str) -> Vec<Vec<HomeworkEntry>> {
+    transpose(
+        input
+            .lines()
+            .map(|l| {
+                l.split_whitespace()
+                    .map(|s| HomeworkEntry::parse(s).unwrap())
+                    .collect_vec()
+            })
+            .collect_vec(),
+    )
+}
+
 fn part1(_input: &str) -> AnswerType {
-    todo!()
+    use HomeworkEntry::*;
+    parse(_input)
+        .iter_mut()
+        .map(|p| {
+            let operation = p.pop().unwrap();
+            match operation {
+                Operation(b'+') => p
+                    .into_iter()
+                    .map(|&mut n| if let Number(n) = n { n } else { unreachable!() })
+                    .sum::<AnswerType>(),
+                Operation(b'*') => p
+                    .into_iter()
+                    .map(|&mut n| if let Number(n) = n { n } else { unreachable!() })
+                    .product::<AnswerType>(),
+                _ => unreachable!(),
+            }
+        })
+        .sum()
 }
 
 fn part2(_input: &str) -> AnswerType {
