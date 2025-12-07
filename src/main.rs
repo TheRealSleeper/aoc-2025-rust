@@ -78,34 +78,21 @@ fn part1(_input: &str) -> AnswerType {
             beams[beam] = false;
         }
         remove_beams.clear();
-        for i in 0..row.len() {
-            if beams[i] {
-                print!("|");
-            } else {
-                print!("{}", row[i] as char);
+
+        #[cfg(debug_assertions)]
+        {
+            for i in 0..row.len() {
+                if beams[i] {
+                    print!("|");
+                } else {
+                    print!("{}", row[i] as char);
+                }
             }
+            println!();
         }
-        println!();
     }
 
     total
-}
-
-fn many_worlds(grid: &[Vec<u8>], total: &mut AnswerType, position: (usize, usize)) {
-    let (mut row, mut col) = position;
-    while row < grid.len() {
-        if grid[row][col] == b'^' && col > 0 {
-            many_worlds(grid, total, (row, col - 1));
-        }
-
-        if grid[row][col] == b'^' && col < grid[row].len() - 1 {
-            col += 1;
-        }
-
-        row += 1;
-    }
-
-    *total += 1;
 }
 
 fn part2(_input: &str) -> AnswerType {
@@ -115,8 +102,28 @@ fn part2(_input: &str) -> AnswerType {
         .collect_vec();
 
     let start = grid[0].iter().position(|&b| b == b'S').unwrap();
-    let mut total = 0;
+    let mut path_counts = vec![vec![0; grid[0].len()]; grid.len()];
 
-    many_worlds(&grid, &mut total, (0, start));
-    total
+    *path_counts.last_mut().unwrap() = vec![1; grid[0].len()];
+    for i in (0..grid.len() - 1).rev() {
+        for ii in 0..grid[i].len() {
+            path_counts[i][ii] = if grid[i][ii] == b'^' {
+                let left = if ii > 0 {
+                    path_counts[i + 1][ii - 1]
+                } else {
+                    0
+                };
+                let right = if ii < grid[i].len() - 1 {
+                    path_counts[i + 1][ii + 1]
+                } else {
+                    0
+                };
+                left + right
+            } else {
+                path_counts[i + 1][ii]
+            };
+        }
+    }
+
+    path_counts[0][start]
 }
