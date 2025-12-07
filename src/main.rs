@@ -91,6 +91,32 @@ fn part1(_input: &str) -> AnswerType {
     total
 }
 
+fn many_worlds(grid: &[Vec<u8>], total: &mut AnswerType, position: (usize, usize)) {
+    let (mut row, mut col) = position;
+    while row < grid.len() {
+        if grid[row][col] == b'^' && col > 0 {
+            many_worlds(grid, total, (row, col - 1));
+        }
+
+        if grid[row][col] == b'^' && col < grid[row].len() - 1 {
+            col += 1;
+        }
+
+        row += 1;
+    }
+
+    *total += 1;
+}
+
 fn part2(_input: &str) -> AnswerType {
-    todo!()
+    let grid = _input
+        .lines()
+        .map(|l| l.bytes().collect_vec())
+        .collect_vec();
+
+    let start = grid[0].iter().position(|&b| b == b'S').unwrap();
+    let mut total = 0;
+
+    many_worlds(&grid, &mut total, (0, start));
+    total
 }
