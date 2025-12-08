@@ -51,7 +51,7 @@ fn parse(input: &str) -> Vec<(f64, f64, f64, usize)> {
         .collect_vec()
 }
 
-fn get_combos(jbs: &Vec<(f64, f64, f64, usize)>) -> Vec<(usize, usize, f64)> {
+fn get_combos(jbs: &[(f64, f64, f64, usize)]) -> Vec<(usize, usize, f64)> {
     jbs.iter()
         .combinations(2)
         .map(|combo| {
@@ -156,7 +156,7 @@ fn part2(_input: &str) -> AnswerType {
 
     const COMBOS: usize = if cfg!(test) { 10 } else { 1000 };
     let (initial_combos, remaining_combos) = combos.split_at(COMBOS);
-    let mut remaining_combos = remaining_combos.into_iter();
+    let mut remaining_combos = remaining_combos.iter();
     
     let mut circuits: Vec<Vec<usize>> = Vec::new();
     for combo in initial_combos {
