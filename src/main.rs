@@ -1,5 +1,7 @@
 use std::fs::read_to_string;
 
+use itertools::Itertools;
+
 #[allow(dead_code)]
 mod aoc_lib;
 
@@ -35,7 +37,19 @@ fn main() {
 }
 
 fn part1(_input: &str) -> AnswerType {
-    todo!()
+    _input
+        .lines()
+        .map(|l| {
+            let (x, y) = l.split_once(',').unwrap();
+            (
+                x.parse::<AnswerType>().unwrap(),
+                y.parse::<AnswerType>().unwrap(),
+            )
+        })
+        .combinations(2)
+        .map(|combo| (combo[0].0.abs_diff(combo[1].0) + 1) * (combo[0].1.abs_diff(combo[1].1) + 1))
+        .max()
+        .unwrap()
 }
 
 fn part2(_input: &str) -> AnswerType {
