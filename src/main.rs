@@ -1,6 +1,7 @@
-use std::fs::read_to_string;
-use rayon::prelude::*;
 use itertools::Itertools;
+use rayon::prelude::*;
+use std::fs::read_to_string;
+use indicatif::{ProgressIterator, ProgressStyle};
 
 #[allow(dead_code)]
 mod aoc_lib;
@@ -86,12 +87,14 @@ fn part2(_input: &str) -> AnswerType {
     grid.insert(0, vec![false; grid[0].len()]);
     grid.push(vec![false; grid[0].len()]);
 
-    for row in &mut grid {
+    grid.par_iter_mut().for_each(|row| {
         row.push(false);
         row.insert(0, false);
-    }
+    });
 
-    for i in 1..grid.len() - 1 {
+    // println!("{}x{}", grid[0].len(), grid.len());
+
+    for i in (1..grid.len() - 1).progress_with_style(ProgressStyle::default_bar()) {
         let mut edge_bot = false;
         let mut edge_top = false;
         let mut edge_count = 0;
@@ -139,6 +142,7 @@ fn part2(_input: &str) -> AnswerType {
 
     points
         .iter()
+        .progress_with_style(ProgressStyle::default_bar())
         .combinations(2)
         .par_bridge()
         .map(|combo| {
@@ -158,6 +162,7 @@ fn part2(_input: &str) -> AnswerType {
                 }
             }
             true
+            // grid[*x_min][*y_min] && grid[*x_max][*y_min] && grid[*x_min][*y_max] && grid[*x_max][*y_max]
         })
         .map(|(x_min, x_max, y_min, y_max)| (x_max - x_min + 1) * (y_max - y_min + 1))
         .max()
