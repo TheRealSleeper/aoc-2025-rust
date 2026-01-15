@@ -1,6 +1,6 @@
-use std::fs::read_to_string;
-use rayon::prelude::*;
 use itertools::Itertools;
+use rayon::prelude::*;
+use std::fs::read_to_string;
 
 #[allow(dead_code)]
 mod aoc_lib;
