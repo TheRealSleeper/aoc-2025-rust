@@ -63,103 +63,117 @@ fn part2(_input: &str) -> AnswerType {
             )
         })
         .collect_vec();
+
+    let x_points = [0]
+        .iter()
+        .chain(points.iter().map(|(x, _)| x).sorted().dedup())
+        .collect_vec();
+    let y_points = [0]
+        .iter()
+        .chain(points.iter().map(|(_, y)| y).sorted().dedup())
+        .collect_vec();
+    let points_compressed = points
+        .iter()
+        .map(|(x, y)| {
+            (
+                x_points.binary_search(&x).unwrap(),
+                y_points.binary_search(&y).unwrap(),
+            )
+        })
+        .collect_vec();
+
     let mut grid = vec![
-        vec![false; points.iter().map(|p| p.1).max().unwrap() + 1];
-        points.iter().map(|p| p.0).max().unwrap() + 1
+        vec![false; points_compressed.iter().map(|(x, _)| x).max().unwrap() + 2];
+        points_compressed.iter().map(|(_, y)| y).max().unwrap() + 2
     ];
 
-    for line in points.windows(2) {
-        for i in line[0].0.min(line[1].0)..=line[0].0.max(line[1].0) {
-            for ii in line[0].1.min(line[1].1)..=line[0].1.max(line[1].1) {
-                grid[i][ii] = true;
-            }
-        }
-    }
-    for i in points[0].0.min(points.last().unwrap().0)..=points[0].0.max(points.last().unwrap().0) {
-        for ii in
-            points[0].1.min(points.last().unwrap().1)..=points[0].1.max(points.last().unwrap().1)
-        {
-            grid[i][ii] = true;
-        }
+    for &(x, y) in &points_compressed {
+        grid[y][x] = true;
     }
 
-    grid.insert(0, vec![false; grid[0].len()]);
-    grid.push(vec![false; grid[0].len()]);
-
-    for row in &mut grid {
-        row.push(false);
-        row.insert(0, false);
+    let mut verticals = points_compressed
+        .windows(2)
+        .filter_map(|w| {
+            if w[0].0 == w[1].0 {
+                let max = w[0].1.max(w[1].1);
+                let min = w[0].1.min(w[1].1);
+                Some((w[0].0, min..=max))
+            } else {
+                None
+            }
+        })
+        .collect_vec();
+    if points_compressed.first().unwrap().0 == points_compressed.last().unwrap().0 {
+        let max = points_compressed
+            .first()
+            .unwrap()
+            .1
+            .max(points_compressed.last().unwrap().1);
+        let min = points_compressed
+            .first()
+            .unwrap()
+            .1
+            .min(points_compressed.last().unwrap().1);
+        verticals.push((points_compressed.first().unwrap().0, min..=max));
     }
 
-    for i in 1..grid.len() - 1 {
-        let mut edge_bot = false;
-        let mut edge_top = false;
-        let mut edge_count = 0;
-        for ii in 1..grid[i].len() - 1 {
-            let space = grid[i][ii];
-            let space_up = grid[i - 1][ii];
-            let space_down = grid[i + 1][ii];
-            let space_fwd = grid[i][ii + 1];
-            let space_back = grid[i][ii - 1];
-
-            if space_up && space && space_fwd && !space_down && !edge_top && !edge_bot {
-                edge_top = true;
-            }
-            if !space_up && space && space_fwd && space_down && !edge_top && !edge_bot {
-                edge_bot = true;
-            }
-            if !edge_top && !edge_bot {
-                if space {
-                    edge_count += 1;
-                } else {
-                    grid[i][ii] = edge_count & 1 == 1;
+    for r in (0..grid.len()).rev() {
+        let mut count = 0;
+        let mut top = false;
+        let mut bottom = false;
+        for c in 0..grid[0].len() {
+            let mut on_vert = false;
+            for (x, y) in &verticals {
+                if *x == c && y.contains(&r) {
+                    on_vert = true;
+                    if top {
+                        if r == *y.start() {
+                            top = false;
+                            count += 1;
+                        } else if r == *y.end() {
+                            top = false;
+                        }
+                    } else if bottom {
+                        if r == *y.end() {
+                            bottom = false;
+                            count += 1;
+                        } else if r == *y.start() {
+                            bottom = false;
+                        }
+                    } else {
+                        top = r == *y.end();
+                        bottom = r == *y.start();
+                    }
+                    count += 1;
+                    break;
                 }
             }
-            if edge_top && space_down && space && space_back && !space_up {
-                edge_count += 1;
-                edge_top = false;
-            } else if edge_bot && !space_down && space && space_back && space_up {
-                edge_count += 1;
-                edge_bot = false;
-            }
-            if edge_top && !space_down && space && space_back && space_up {
-                edge_top = false;
-            } else if edge_bot && space_down && space && space_back && !space_up {
-                edge_bot = false;
-            }
+            grid[r][c] = grid[r][c] || count & 1 == 1 || on_vert;
         }
     }
-
-    // for row in &grid {
-    //     for &space in row {
-    //         print!("{}", if space {'#'} else {'.'});
-    //     }
-    //     println!();
-    // }
-
-    points
+    
+    points_compressed
         .iter()
         .combinations(2)
         .par_bridge()
         .map(|combo| {
             (
-                (combo[0].0 + 1).min(combo[1].0 + 1),
-                (combo[0].0 + 1).max(combo[1].0 + 1),
-                (combo[0].1 + 1).min(combo[1].1 + 1),
-                (combo[0].1 + 1).max(combo[1].1 + 1),
+                (combo[0].0).min(combo[1].0),
+                (combo[0].0).max(combo[1].0),
+                (combo[0].1).min(combo[1].1),
+                (combo[0].1).max(combo[1].1),
             )
         })
         .filter(|(x_min, x_max, y_min, y_max)| {
-            for i in *x_min..=*x_max {
-                for ii in *y_min..=*y_max {
-                    if !grid[i][ii] {
-                        return false;
-                    }
-                }
-            }
-            true
+            grid.iter()
+                .take(*y_max + 1)
+                .skip(*y_min)
+                .flat_map(|r| r.iter().take(*x_max + 1).skip(*x_min))
+                .all(|&x| x)
         })
-        .map(|(x_min, x_max, y_min, y_max)| (x_max - x_min + 1) * (y_max - y_min + 1))
+        .map(|(x_min, x_max, y_min, y_max)| {
+            (x_points[x_max] - x_points[x_min] + 1) * (y_points[y_max] - y_points[y_min] + 1)
+        })
         .max()
         .unwrap()
 }
