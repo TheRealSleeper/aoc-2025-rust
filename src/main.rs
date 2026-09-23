@@ -37,15 +37,20 @@ fn main() {
     }
 }
 
+#[inline]
+fn set_bits(n: u32, i: usize) -> u32 {
+    n | 1 << i
+}
+
 #[derive(Debug)]
 struct Machine {
-    lights: Vec<bool>,
-    buttons: Vec<Vec<usize>>,
+    target: u32,
+    buttons: Vec<u32>,
     joltages: Vec<usize>,
 }
 
-impl Machine {
-    fn from_str(string: &str) -> Self {
+impl From<&str> for Machine {
+    fn from(string: &str) -> Self {
         static RE: OnceLock<Regex> = OnceLock::new();
         let captures = RE.get_or_init(||RegexBuilder::new(
             r"(?<lights>\[[.#]+\])\s*(?<buttons>(?:\s*\((?:[0-9]+,?)+\))+)\s*(?<joltages>\{(?:[0-9]+,?)+\})"
@@ -61,9 +66,8 @@ impl Machine {
             .as_str()
             .strip_circumfix('[', ']')
             .unwrap()
-            .chars()
-            .map(|c| c == '#')
-            .collect_vec();
+            .char_indices()
+            .fold(0, |n, (i, c)| if c == '#' { set_bits(n, i) } else { n });
 
         let buttons = captures
             .name("buttons")
@@ -74,8 +78,7 @@ impl Machine {
                 s.strip_circumfix('(', ')')
                     .unwrap()
                     .split(',')
-                    .map(|n| n.parse::<usize>().unwrap())
-                    .collect_vec()
+                    .fold(0, |n, c| set_bits(n, c.parse::<usize>().unwrap()))
             })
             .collect_vec();
 
@@ -90,7 +93,7 @@ impl Machine {
             .collect_vec();
 
         Machine {
-            lights,
+            target: lights,
             buttons,
             joltages,
         }
@@ -98,14 +101,22 @@ impl Machine {
 }
 
 fn part1(_input: &str) -> AnswerType {
-    let machines = _input
+    _input
         .par_lines()
-        .map(Machine::from_str)
-        .collect::<Vec<_>>(); 
-        // .map(|cap| todo!())
-    // .sum::<AnswerType>()
-    // 
-    todo!(); 
+        .map(Machine::from)
+        .map(|machine| {
+            (0..=machine.buttons.len())
+                .take_while_inclusive(|&n| {
+                    machine
+                        .buttons
+                        .iter()
+                        .combinations(n)
+                        .all(|combo| combo.iter().fold(0, |n, &&b| n ^ b) != machine.target)
+                })
+                .last()
+                .unwrap() as AnswerType
+        })
+        .sum()
 }
 
 fn part2(_input: &str) -> AnswerType {
