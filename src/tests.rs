@@ -7,11 +7,13 @@ fn test(func: fn(&str) -> AnswerType, answer: AnswerType, path: &str) {
     );
 }
 
+#[allow(unreachable_code)]
 #[test]
 fn test1() {
-    test(part1, todo!(), "samples/sample1.txt");
+    test(part1, 7, "samples/sample1.txt");
 }
 
+#[allow(unreachable_code)]
 #[test]
 fn test2() {
     test(part2, todo!(), "samples/sample1.txt");
