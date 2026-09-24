@@ -2,6 +2,7 @@ use itertools::Itertools;
 use rayon::prelude::*;
 use regex::{Regex, RegexBuilder};
 use std::{fs::read_to_string, sync::OnceLock};
+use z3::{AstVector, Solver, ast::Int};
 
 #[allow(dead_code)]
 mod aoc_lib;
@@ -120,5 +121,64 @@ fn part1(_input: &str) -> AnswerType {
 }
 
 fn part2(_input: &str) -> AnswerType {
-    todo!()
+    _input
+        .par_lines()
+        .map(Machine::from)
+        .map(|machine| {
+            let joltages = machine
+                .joltages
+                .iter()
+                .enumerate()
+                .map(|(n, _)| Int::fresh_const(&n.to_string()))
+                .collect_vec();
+
+            // let mut presses = (0..machine.buttons.len() as u32).collect_vec();
+
+            let presses = machine
+                .buttons
+                .iter()
+                .enumerate()
+                .map(|(n, _)| Int::fresh_const(&n.to_string()))
+                .collect::<AstVector>();
+
+            // let mut relations = vec![vec![]];
+            // for (i, &button) in machine.buttons.iter().enumerate() {
+            //     for ii in 0..joltages.len() {
+            //         if button >> ii & 1 == 1 {
+            //             relations[i].push(ii);
+            //         }
+            //     }
+            // }
+
+            let solver = Solver::new();
+
+            for (i, joltage) in joltages.iter().enumerate() {
+                let relations = machine
+                    .buttons
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, b)| *b >> i & 1 == 1)
+                    .map(|(n, _)| n);
+
+                solver.assert(
+                    joltage.eq(relations
+                        .map(|ii| presses.get(ii).as_int().unwrap())
+                        .sum::<Int>()),
+                );
+
+                solver.assert(joltage.eq(machine.joltages[i] as u32));
+            }
+
+            solver
+                .solutions(presses.iter().collect_vec(), true)
+                .take(100)
+                .map(|v| {
+                    v.into_iter()
+                        .map(|d| d.as_int().unwrap().as_u64().unwrap_or(u64::MAX))
+                        .sum::<u64>() as AnswerType
+                })
+                .min()
+                .unwrap()
+        })
+        .sum()
 }

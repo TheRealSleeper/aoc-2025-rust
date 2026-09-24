@@ -16,5 +16,5 @@ fn test1() {
 #[allow(unreachable_code)]
 #[test]
 fn test2() {
-    test(part2, todo!(), "samples/sample1.txt");
+    test(part2, 33, "samples/sample1.txt");
 }
