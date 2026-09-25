@@ -47,7 +47,7 @@ fn set_bits(n: u32, i: usize) -> u32 {
 struct Machine {
     target: u32,
     buttons: Vec<u32>,
-    joltages: Vec<usize>,
+    joltages: Vec<u32>,
 }
 
 impl From<&str> for Machine {
@@ -90,7 +90,7 @@ impl From<&str> for Machine {
             .strip_circumfix('{', '}')
             .unwrap()
             .split(',')
-            .map(|n| n.parse::<usize>().unwrap())
+            .map(|n| n.parse::<u32>().unwrap())
             .collect_vec();
 
         Machine {
@@ -157,9 +157,14 @@ fn part2(_input: &str) -> AnswerType {
                         .sum::<Int>()),
                 );
 
-                solver.assert(joltage.eq(machine.joltages[i] as u32));
+                solver.assert(joltage.eq(machine.joltages[i]));
             }
 
+            for press in &presses {
+                solver.assert(press.as_int().unwrap().ge(0));
+            }
+
+            assert_eq!(solver.check(&[]), z3::SatResult::Sat);
             solver
                 .solutions(presses.iter().collect_vec(), true)
                 .take(10)
