@@ -45,65 +45,49 @@ fn parse_input(input: &str) -> HashMap<&str, Vec<&str>> {
 }
 
 fn count_paths<'a>(
-    node: &'a str,
-    end: &str,
-    map: &HashMap<&str, Vec<&'a str>>,
-    count: &mut AnswerType,
+    device: &'a str,
+    end_device: &str,
+    schematic: &HashMap<&str, Vec<&'a str>>,
     cache: &mut HashMap<&'a str, AnswerType>,
-) {
-    if !map.contains_key(node) {
-        return;
+) -> AnswerType {
+    if !schematic.contains_key(device) {
+        return 0;
     }
 
-    if cache.contains_key(node) {
-        *count += cache[node];
-        return;
+    if cache.contains_key(device) {
+        return cache[device];
     }
 
-    let devs = &map[node];
-    if devs.contains(&end) {
-        *count += 1;
-        cache.insert(node, 1);
+    let devs = &schematic[device];
+    if devs.contains(&end_device) {
+        cache.insert(device, 1);
+        1
     } else {
-        let mut new_count = 0;
-        for dev in devs {
-            count_paths(dev, end, map, &mut new_count, cache);
+        let mut paths = 0;
+        for device in devs {
+            paths += count_paths(device, end_device, schematic, cache);
         }
-        cache.insert(node, new_count);
-        *count += new_count;
+        cache.insert(device, paths);
+        paths
     }
 }
 
 fn part1(_input: &str) -> AnswerType {
-    let mut count = 0;
-    count_paths(
-        "you",
-        "out",
-        &parse_input(_input),
-        &mut count,
-        &mut HashMap::new(),
-    );
-    count
+    count_paths("you", "out", &parse_input(_input), &mut HashMap::new())
 }
 
 fn part2(_input: &str) -> AnswerType {
-    let map = parse_input(_input);
+    let schematic = parse_input(_input);
 
-    let mut dac_paths = 0;
-    count_paths("dac", "fft", &map, &mut dac_paths, &mut HashMap::new());
-
-    let mut fft_paths = 0;
-    count_paths("fft", "dac", &map, &mut fft_paths, &mut HashMap::new());
+    let dac_paths = count_paths("dac", "fft", &schematic, &mut HashMap::new());
+    let fft_paths = count_paths("fft", "dac", &schematic, &mut HashMap::new());
 
     let first = if dac_paths == 0 { "fft" } else { "dac" };
     let second = if dac_paths == 0 { "dac" } else { "fft" };
     let mid_paths = if dac_paths == 0 { fft_paths } else { dac_paths };
 
-    let mut start_paths = 0;
-    count_paths("svr", first, &map, &mut start_paths, &mut HashMap::new());
-
-    let mut end_paths = 0;
-    count_paths(second, "out", &map, &mut end_paths, &mut HashMap::new());
+    let start_paths = count_paths("svr", first, &schematic, &mut HashMap::new());
+    let end_paths = count_paths(second, "out", &schematic, &mut HashMap::new());
 
     start_paths * mid_paths * end_paths
 }
