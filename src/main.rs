@@ -2,7 +2,7 @@ use itertools::Itertools;
 use rayon::prelude::*;
 use regex::{Regex, RegexBuilder};
 use std::{fs::read_to_string, sync::OnceLock};
-use z3::{AstVector, Solver, ast::Int};
+use z3::{AstVector, Optimize, ast::Int};
 
 #[allow(dead_code)]
 mod aoc_lib;
@@ -139,7 +139,9 @@ fn part2(_input: &str) -> AnswerType {
                 .map(|(n, _)| Int::fresh_const(&n.to_string()))
                 .collect::<AstVector>();
 
-            let solver = Solver::new();
+            let solver = Optimize::new();
+
+            solver.minimize(&presses.iter().map(|d| d.as_int().unwrap()).sum::<Int>());
 
             for (i, joltage) in joltages.iter().enumerate() {
                 let relations = machine
@@ -160,7 +162,7 @@ fn part2(_input: &str) -> AnswerType {
 
             solver
                 .solutions(presses.iter().collect_vec(), true)
-                .take(100)
+                .take(10)
                 .map(|v| {
                     v.into_iter()
                         .filter_map(|d| d.as_int().unwrap().as_u64())
