@@ -132,23 +132,12 @@ fn part2(_input: &str) -> AnswerType {
                 .map(|(n, _)| Int::fresh_const(&n.to_string()))
                 .collect_vec();
 
-            // let mut presses = (0..machine.buttons.len() as u32).collect_vec();
-
             let presses = machine
                 .buttons
                 .iter()
                 .enumerate()
                 .map(|(n, _)| Int::fresh_const(&n.to_string()))
                 .collect::<AstVector>();
-
-            // let mut relations = vec![vec![]];
-            // for (i, &button) in machine.buttons.iter().enumerate() {
-            //     for ii in 0..joltages.len() {
-            //         if button >> ii & 1 == 1 {
-            //             relations[i].push(ii);
-            //         }
-            //     }
-            // }
 
             let solver = Solver::new();
 
@@ -174,7 +163,7 @@ fn part2(_input: &str) -> AnswerType {
                 .take(100)
                 .map(|v| {
                     v.into_iter()
-                        .map(|d| d.as_int().unwrap().as_u64().unwrap_or(u64::MAX))
+                        .filter_map(|d| d.as_int().unwrap().as_u64())
                         .sum::<u64>() as AnswerType
                 })
                 .min()
