@@ -167,7 +167,7 @@ fn part2(_input: &str) -> AnswerType {
             assert_eq!(solver.check(&[]), z3::SatResult::Sat);
             solver
                 .solutions(presses.iter().collect_vec(), true)
-                .take(10)
+                .take(1)
                 .map(|v| {
                     v.into_iter()
                         .filter_map(|d| d.as_int().unwrap().as_u64())
