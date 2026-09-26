@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::fs::read_to_string;
 
 #[allow(dead_code)]
@@ -34,10 +35,55 @@ fn main() {
     }
 }
 
+fn parse_input(input: &str) -> (Vec<u8>, Vec<Vec<usize>>) {
+    let shapes = input
+        .split(if cfg!(windows) { "\r\n\r\n" } else { "\n\n" })
+        .take(6)
+        .map(|s| s.chars().filter(|c| *c == '#').count() as u8)
+        .collect();
+
+    let zones = input
+        .split(if cfg!(windows) { "\r\n\r\n" } else { "\n\n" })
+        .dropping(6)
+        .map(|s| {
+            s.lines()
+                .map(|l| {
+                    let (size, counts) = l.split_once(':').unwrap();
+                    let size = size
+                        .split('x')
+                        .map(|n| n.parse::<usize>().unwrap())
+                        .product::<usize>();
+                    let mut counts = counts
+                        .split_whitespace()
+                        .map(|n| n.parse::<usize>().unwrap())
+                        .collect_vec();
+                    counts.insert(0, size);
+                    counts
+                })
+                .collect_vec()
+        })
+        .last()
+        .unwrap();
+
+    (shapes, zones)
+}
+
 fn part1(_input: &str) -> AnswerType {
-    todo!()
+    let (shapes, zones) = parse_input(_input);
+    zones
+        .into_iter()
+        .filter(|z| {
+            let a_req = z[0];
+            let a_act = z[1..]
+                .iter()
+                .enumerate()
+                .map(|(i, n)| n * shapes[i] as usize)
+                .sum();
+            a_req >= a_act
+        })
+        .count()
 }
 
 fn part2(_input: &str) -> AnswerType {
-    todo!()
+    unimplemented!("Part 2 is solved automagically!")
 }
